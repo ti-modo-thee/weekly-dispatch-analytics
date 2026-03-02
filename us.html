@@ -99,6 +99,7 @@
     <div class="glossary-item"><strong>Delivery rate:</strong> % of sent emails that actually reached inboxes (not bounced). 99%+ is excellent.</div>
     <div class="glossary-item"><strong>Spam rate:</strong> % of recipients who marked the email as spam. 0% is perfect.</div>
     <div class="glossary-item"><strong>Correlation (r):</strong> Statistical measure from -1 to +1. Close to 0 = no relationship. Close to 1 = strong positive relationship.</div>
+    <div class="glossary-item"><strong>Open rate:</strong> % of delivered emails that were opened. Indicates subject line effectiveness and audience interest. Data available for 12 of 19 dispatches.</div>
     <div class="glossary-item"><strong>Article views:</strong> Daily count of readers viewing US research content. Lift on dispatch days indicates email-driven traffic.</div>
   </div>
 </div>
@@ -113,7 +114,12 @@
 <!-- ==================== WEEKLY DISPATCH TAB ==================== -->
 <div id="tab-weekly" class="tab-content active">
 
-<div class="kpi-grid" style="grid-template-columns: repeat(4, 1fr);">
+<div class="kpi-grid" style="grid-template-columns: repeat(5, 1fr);">
+  <div class="kpi">
+    <div class="kpi-label">Avg. open rate</div>
+    <div class="kpi-value">41.3%</div>
+    <div class="kpi-sub">12 of 19 dispatches measured</div>
+  </div>
   <div class="kpi">
     <div class="kpi-label">Avg. click-through rate</div>
     <div class="kpi-value">8.7%</div>
@@ -150,6 +156,26 @@
   </div>
   <div class="insight good">
     <p><strong>February 2026 rebounded strongly</strong> with two high-performing dispatches (14.6% on 9 Feb and 10.3% on 2 Feb) despite a weak start (6.5% on 17 Feb). Average CTR of 9.4% with moderate unsubscribes (0.27%).</p>
+  </div>
+</div>
+
+<!-- OPEN RATE vs CTR -->
+<div class="section">
+  <h2>Open rate vs click-through rate</h2>
+  <div class="chart-row">
+    <div>
+      <div class="chart-box" style="height:260px;">
+        <canvas id="openVsCtr"></canvas>
+      </div>
+    </div>
+    <div>
+      <div class="insight">
+        <p><strong>Open rates range from 29% to 58%</strong> across the 12 measured dispatches, averaging 41.3%. The 17 Feb dispatch stands out at 58% open rate — the highest measured. Conversely, the latest dispatch (2 Mar) had the lowest open rate at 29%, mirroring its lowest-ever CTR (2.8%).</p>
+      </div>
+      <div class="insight warn">
+        <p><strong>December and January showed depressed open rates (30–32%)</strong> suggesting seasonal disengagement or subject line fatigue during the holiday period. February bounced back strongly to 50.3% average, the best month measured.</p>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -221,6 +247,11 @@
   </div>
 </div>
 
+<!-- OPEN RATE NOTE -->
+<div class="note-box">
+  <strong>Open rate data:</strong> Available for 12 of 19 dispatches (Oct 10 onwards, with gaps). Open rates were manually extracted from HubSpot charts and matched to dispatches. Missing data for: 5 Sep, 12 Sep, 19 Sep, 26 Sep, 3 Oct, 24 Oct, 2 Feb. Average open rate across available data: 41.3%.
+</div>
+
 <!-- DISPATCH DAY SHIFT NOTE -->
 <div class="note-box">
   <strong>Send day shift observed:</strong> September–November dispatches were sent mostly on Fridays (US business week closure). In 2026, all dispatches shifted to Mondays. Send times are US afternoon (ET): 11:59am to 6:00pm, typically 2–5pm window.
@@ -231,7 +262,7 @@
   <h2>All 19 Weekly Dispatches in detail</h2>
   <div style="overflow-x:auto;">
   <table>
-    <thead><tr><th>Date</th><th>Time</th><th>Recipients</th><th>Click-through</th><th>Delivery</th><th>Unsub</th><th>Name</th></tr></thead>
+    <thead><tr><th>Date</th><th>Time</th><th>Recipients</th><th>Open rate</th><th>Click-through</th><th>Delivery</th><th>Unsub</th><th>Name</th></tr></thead>
     <tbody id="weeklyTable"></tbody>
   </table>
   </div>
@@ -421,25 +452,25 @@
 <script>
 // ======= DATA =======
 const weekly = [
-  {date:'2025-09-05',time:16.00,sent:4284,ctr:10.03,unsub:0.117,name:'5 Sep',views:199},
-  {date:'2025-09-12',time:15.43,sent:4243,ctr:14.47,unsub:0.354,name:'12 Sep',views:217},
-  {date:'2025-09-19',time:15.40,sent:4098,ctr:9.22,unsub:0.147,name:'19 Sep',views:186},
-  {date:'2025-09-26',time:15.13,sent:4082,ctr:9.94,unsub:0.294,name:'26 Sep',views:210},
-  {date:'2025-10-03',time:18.20,sent:3867,ctr:9.63,unsub:0.207,name:'3 Oct',views:202},
-  {date:'2025-10-10',time:16.07,sent:3863,ctr:8.95,unsub:0.207,name:'10 Oct',views:291},
-  {date:'2025-10-17',time:15.73,sent:5177,ctr:8.40,unsub:0.406,name:'17 Oct',views:229},
-  {date:'2025-10-24',time:16.63,sent:4945,ctr:10.65,unsub:0.324,name:'24 Oct',views:260},
-  {date:'2025-10-31',time:14.15,sent:4944,ctr:7.55,unsub:0.386,name:'31 Oct',views:228},
-  {date:'2025-11-07',time:16.33,sent:4888,ctr:6.92,unsub:0.246,name:'7 Nov',views:195},
-  {date:'2025-11-14',time:16.27,sent:4844,ctr:9.58,unsub:0.310,name:'14 Nov',views:253},
-  {date:'2025-11-21',time:16.55,sent:4811,ctr:4.06,unsub:0.333,name:'21 Nov',views:177},
-  {date:'2025-12-01',time:14.73,sent:4786,ctr:10.01,unsub:0.399,name:'1 Dec',views:61},
-  {date:'2026-01-16',time:13.50,sent:7736,ctr:6.43,unsub:0.299,name:'16 Jan',views:174},
-  {date:'2026-02-02',time:13.78,sent:4582,ctr:10.30,unsub:0.504,name:'2 Feb',views:84},
-  {date:'2026-02-09',time:11.97,sent:4646,ctr:14.57,unsub:0.173,name:'9 Feb',views:208},
-  {date:'2026-02-17',time:14.90,sent:4552,ctr:6.54,unsub:0.242,name:'17 Feb',views:205},
-  {date:'2026-02-23',time:14.67,sent:4541,ctr:6.15,unsub:0.110,name:'23 Feb',views:91},
-  {date:'2026-03-02',time:14.68,sent:4575,ctr:2.83,unsub:0.022,name:'2 Mar',views:77},
+  {date:'2025-09-05',time:16.00,sent:4284,ctr:10.03,unsub:0.117,name:'5 Sep',views:199,open:null},
+  {date:'2025-09-12',time:15.43,sent:4243,ctr:14.47,unsub:0.354,name:'12 Sep',views:217,open:null},
+  {date:'2025-09-19',time:15.40,sent:4098,ctr:9.22,unsub:0.147,name:'19 Sep',views:186,open:null},
+  {date:'2025-09-26',time:15.13,sent:4082,ctr:9.94,unsub:0.294,name:'26 Sep',views:210,open:null},
+  {date:'2025-10-03',time:18.20,sent:3867,ctr:9.63,unsub:0.207,name:'3 Oct',views:202,open:null},
+  {date:'2025-10-10',time:16.07,sent:3863,ctr:8.95,unsub:0.207,name:'10 Oct',views:291,open:44},
+  {date:'2025-10-17',time:15.73,sent:5177,ctr:8.40,unsub:0.406,name:'17 Oct',views:229,open:41},
+  {date:'2025-10-24',time:16.63,sent:4945,ctr:10.65,unsub:0.324,name:'24 Oct',views:260,open:null},
+  {date:'2025-10-31',time:14.15,sent:4944,ctr:7.55,unsub:0.386,name:'31 Oct',views:228,open:36},
+  {date:'2025-11-07',time:16.33,sent:4888,ctr:6.92,unsub:0.246,name:'7 Nov',views:195,open:51},
+  {date:'2025-11-14',time:16.27,sent:4844,ctr:9.58,unsub:0.310,name:'14 Nov',views:253,open:50},
+  {date:'2025-11-21',time:16.55,sent:4811,ctr:4.06,unsub:0.333,name:'21 Nov',views:177,open:43},
+  {date:'2025-12-01',time:14.73,sent:4786,ctr:10.01,unsub:0.399,name:'1 Dec',views:61,open:30},
+  {date:'2026-01-16',time:13.50,sent:7736,ctr:6.43,unsub:0.299,name:'16 Jan',views:174,open:32},
+  {date:'2026-02-02',time:13.78,sent:4582,ctr:10.30,unsub:0.504,name:'2 Feb',views:84,open:null},
+  {date:'2026-02-09',time:11.97,sent:4646,ctr:14.57,unsub:0.173,name:'9 Feb',views:208,open:45},
+  {date:'2026-02-17',time:14.90,sent:4552,ctr:6.54,unsub:0.242,name:'17 Feb',views:205,open:58},
+  {date:'2026-02-23',time:14.67,sent:4541,ctr:6.15,unsub:0.110,name:'23 Feb',views:91,open:48},
+  {date:'2026-03-02',time:14.68,sent:4575,ctr:2.83,unsub:0.022,name:'2 Mar',views:77,open:29},
 ];
 
 const rt = [
@@ -486,6 +517,16 @@ new Chart(document.getElementById('weeklyTimeline'), {
       fill: true, tension: 0.3, pointRadius: 5,
       pointBackgroundColor: weekly.map(d => d.ctr >= 14 ? colors.green : d.ctr < 7.5 ? colors.red : colors.blue),
       yAxisID: 'y'
+    },{
+      label: 'Open rate %',
+      data: weekly.map(d => d.open),
+      borderColor: colors.amber,
+      backgroundColor: 'rgba(245,158,11,0.08)',
+      fill: false, tension: 0.3, pointRadius: 5, borderWidth: 2, borderDash: [5,3],
+      pointBackgroundColor: weekly.map(d => d.open !== null ? colors.amber : 'transparent'),
+      pointBorderColor: weekly.map(d => d.open !== null ? colors.amber : 'transparent'),
+      spanGaps: false,
+      yAxisID: 'y1'
     }]
   },
   options: {
@@ -493,11 +534,14 @@ new Chart(document.getElementById('weeklyTimeline'), {
     plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }}},
       tooltip: { callbacks: { afterLabel: ctx => {
         const d = weekly[ctx.dataIndex];
-        return `Recipients: ${d.sent.toLocaleString()} · CTR: ${d.ctr}%`;
+        let s = `Recipients: ${d.sent.toLocaleString()} · CTR: ${d.ctr}%`;
+        if (d.open !== null) s += ` · Open: ${d.open}%`;
+        return s;
       }}}
     },
     scales: {
       y: { position: 'left', min: 0, max: 16, title: { display: true, text: 'Click-through rate %', font: { size: 11 }}},
+      y1: { position: 'right', min: 20, max: 65, title: { display: true, text: 'Open rate %', font: { size: 11 }}, grid: { drawOnChartArea: false }},
       x: { ticks: { font: { size: 10 }, maxRotation: 45 }}
     }
   }
@@ -526,9 +570,38 @@ new Chart(document.getElementById('hourScatter'), {
   }
 });
 
+// Open Rate vs CTR scatter
+const openData = weekly.filter(d => d.open !== null);
+new Chart(document.getElementById('openVsCtr'), {
+  type: 'scatter',
+  data: {
+    datasets: [{
+      label: 'Dispatch',
+      data: openData.map(d => ({x: d.open, y: d.ctr})),
+      backgroundColor: openData.map(d => d.ctr >= 14 ? 'rgba(22,163,106,0.7)' : d.ctr < 7.5 ? 'rgba(220,38,38,0.7)' : 'rgba(59,130,246,0.6)'),
+      pointRadius: 7
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false },
+      tooltip: { callbacks: { label: ctx => {
+        const d = openData[ctx.dataIndex];
+        return `${d.name}: Open ${d.open}% → CTR ${d.ctr}%`;
+      }}}
+    },
+    scales: {
+      x: { min: 25, max: 65, title: { display: true, text: 'Open rate %', font: { size: 11 }}},
+      y: { min: 0, max: 16, title: { display: true, text: 'Click-through rate %', font: { size: 11 }}}
+    }
+  }
+});
+
 const monthLabels = ['Sep','Oct','Nov','Dec','Jan','Feb','Mar'];
 const monthlyCTR = [10.9, 9.0, 6.9, 10.0, 6.4, 9.4, 2.8];
 const monthlyUnsub = [0.2, 0.3, 0.3, 0.4, 0.3, 0.3, 0.0];
+// Monthly avg open rates: Sep=no data, Oct=avg(44,41,36)=40.3, Nov=avg(51,50,43)=48.0, Dec=30, Jan=32, Feb=avg(45,58,48)=50.3, Mar=29
+const monthlyOpen = [null, 40.3, 48.0, 30, 32, 50.3, 29];
 
 new Chart(document.getElementById('monthlyBars'), {
   type: 'bar',
@@ -536,7 +609,8 @@ new Chart(document.getElementById('monthlyBars'), {
     labels: monthLabels,
     datasets: [
       { label: 'Avg. click-through rate %', data: monthlyCTR, backgroundColor: 'rgba(59,130,246,0.7)', borderRadius: 4, yAxisID: 'y' },
-      { label: 'Avg. unsubscribe rate %', data: monthlyUnsub, type: 'line', borderColor: colors.red, backgroundColor: 'rgba(239,68,68,0.1)', fill: false, tension: 0.3, pointRadius: 5, yAxisID: 'y1', borderWidth: 2 }
+      { label: 'Avg. unsubscribe rate %', data: monthlyUnsub, type: 'line', borderColor: colors.red, backgroundColor: 'rgba(239,68,68,0.1)', fill: false, tension: 0.3, pointRadius: 5, yAxisID: 'y1', borderWidth: 2 },
+      { label: 'Avg. open rate %', data: monthlyOpen, type: 'line', borderColor: colors.amber, backgroundColor: 'rgba(245,158,11,0.08)', fill: false, tension: 0.3, pointRadius: 5, yAxisID: 'y2', borderWidth: 2, borderDash: [5,3], spanGaps: false }
     ]
   },
   options: {
@@ -544,7 +618,8 @@ new Chart(document.getElementById('monthlyBars'), {
     plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }}}},
     scales: {
       y: { position: 'left', title: { display: true, text: 'Click-through rate %', font: { size: 11 }}, min: 0, max: 12 },
-      y1: { position: 'right', title: { display: true, text: 'Unsubscribe rate %', font: { size: 11 }}, min: 0, max: 0.5, grid: { drawOnChartArea: false }}
+      y1: { position: 'right', title: { display: true, text: 'Unsubscribe rate %', font: { size: 11 }}, min: 0, max: 0.5, grid: { drawOnChartArea: false }},
+      y2: { position: 'right', title: { display: true, text: 'Open rate %', font: { size: 11 }}, min: 20, max: 60, grid: { drawOnChartArea: false }, display: false }
     }
   }
 });
@@ -726,7 +801,9 @@ weekly.forEach(d => {
   const m = String(Math.round((d.time%1)*60)).padStart(2,'0');
   const ctrStyle = d.ctr >= 14 ? 'color:#16a34a;font-weight:700' : d.ctr < 7.5 ? 'color:#dc2626;font-weight:700' : '';
   const unsubStyle = d.unsub > 0.3 ? 'color:#dc2626;font-weight:700' : d.unsub > 0.25 ? 'color:#d97706' : '';
-  wTbody.innerHTML += `<tr><td>${d.date}</td><td>${h}:${m}</td><td>${d.sent.toLocaleString()}</td><td style="${ctrStyle}">${d.ctr.toFixed(1)}%</td><td>99%+</td><td style="${unsubStyle}">${d.unsub.toFixed(3)}%</td><td style="font-size:11px;color:#64748b">${d.name}</td></tr>`;
+  const openStr = d.open !== null ? `${d.open}%` : '—';
+  const openStyle = d.open !== null ? (d.open >= 50 ? 'color:#16a34a;font-weight:700' : d.open < 35 ? 'color:#dc2626;font-weight:700' : '') : 'color:#94a3b8';
+  wTbody.innerHTML += `<tr><td>${d.date}</td><td>${h}:${m}</td><td>${d.sent.toLocaleString()}</td><td style="${openStyle}">${openStr}</td><td style="${ctrStyle}">${d.ctr.toFixed(1)}%</td><td>99%+</td><td style="${unsubStyle}">${d.unsub.toFixed(3)}%</td><td style="font-size:11px;color:#64748b">${d.name}</td></tr>`;
 });
 
 const rtTbody = document.getElementById('rtTable');
