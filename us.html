@@ -522,10 +522,11 @@ new Chart(document.getElementById('weeklyTimeline'), {
       data: weekly.map(d => d.open),
       borderColor: colors.amber,
       backgroundColor: 'rgba(245,158,11,0.08)',
-      fill: false, tension: 0.3, pointRadius: 5, borderWidth: 2, borderDash: [5,3],
+      fill: false, tension: 0.3, pointRadius: 6, borderWidth: 2, borderDash: [5,3],
       pointBackgroundColor: weekly.map(d => d.open !== null ? colors.amber : 'transparent'),
       pointBorderColor: weekly.map(d => d.open !== null ? colors.amber : 'transparent'),
-      spanGaps: false,
+      pointRadius: weekly.map(d => d.open !== null ? 6 : 0),
+      spanGaps: true,
       yAxisID: 'y1'
     }]
   },
@@ -610,7 +611,7 @@ new Chart(document.getElementById('monthlyBars'), {
     datasets: [
       { label: 'Avg. click-through rate %', data: monthlyCTR, backgroundColor: 'rgba(59,130,246,0.7)', borderRadius: 4, yAxisID: 'y' },
       { label: 'Avg. unsubscribe rate %', data: monthlyUnsub, type: 'line', borderColor: colors.red, backgroundColor: 'rgba(239,68,68,0.1)', fill: false, tension: 0.3, pointRadius: 5, yAxisID: 'y1', borderWidth: 2 },
-      { label: 'Avg. open rate %', data: monthlyOpen, type: 'line', borderColor: colors.amber, backgroundColor: 'rgba(245,158,11,0.08)', fill: false, tension: 0.3, pointRadius: 5, yAxisID: 'y2', borderWidth: 2, borderDash: [5,3], spanGaps: false }
+      { label: 'Avg. open rate %', data: monthlyOpen, type: 'line', borderColor: colors.amber, backgroundColor: 'rgba(245,158,11,0.08)', fill: false, tension: 0.3, pointRadius: 5, yAxisID: 'y2', borderWidth: 2, borderDash: [5,3], spanGaps: true }
     ]
   },
   options: {
@@ -619,7 +620,7 @@ new Chart(document.getElementById('monthlyBars'), {
     scales: {
       y: { position: 'left', title: { display: true, text: 'Click-through rate %', font: { size: 11 }}, min: 0, max: 12 },
       y1: { position: 'right', title: { display: true, text: 'Unsubscribe rate %', font: { size: 11 }}, min: 0, max: 0.5, grid: { drawOnChartArea: false }},
-      y2: { position: 'right', title: { display: true, text: 'Open rate %', font: { size: 11 }}, min: 20, max: 60, grid: { drawOnChartArea: false }, display: false }
+      y2: { position: 'right', title: { display: true, text: 'Open rate %', font: { size: 11 }}, min: 20, max: 60, grid: { drawOnChartArea: false } }
     }
   }
 });
