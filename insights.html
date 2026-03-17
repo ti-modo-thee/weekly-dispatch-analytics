@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modo Energy Content Intelligence Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+      background: #f9fafb;
+      color: #1f2937;
+    }
+
+    header {
+      background: #0f172a;
+      color: white;
+      padding: 2rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    header h1 {
+      font-size: 1.875rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    header p {
+      font-size: 0.875rem;
+      color: #9ca3af;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 2px solid #e5e7eb;
+      margin-bottom: 2rem;
+      background: white;
+      padding: 0 1rem;
+    }
+
+    .tab-button {
+      padding: 1rem 1.5rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: #6b7280;
+      position: relative;
+      transition: color 0.2s;
+    }
+
+    .tab-button:hover {
+      color: #374151;
+    }
+
+    .tab-button.active {
+      color: #0f172a;
+    }
+
+    .tab-button.active::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: #0f172a;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Region Selector */
+    .region-selector {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .region-button {
+      padding: 0.5rem 1rem;
+      background: white;
+      border: 1px solid #d1d5db;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #374151;
+      transition: all 0.2s;
+    }
+
+    .region-button:hover {
+      border-color: #0f172a;
+      color: #0f172a;
+    }
+
+    .region-button.active {
+      background: #0f172a;
+      color: white;
+      border-color: #0f172a;
+    }
+
+    /* KPI Cards */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .kpi {
+      background: white;
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      border-left: 4px solid #0f172a;
+    }
+
+    .kpi-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: #6b7280;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .kpi-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 0.25rem;
+    }
+
+    .kpi-change {
+      font-size: 0.875rem;
+      color: #6b7280;
+    }
+
+    /* Sections */
+    .section {
+      background: white;
+      border-radius: 0.5rem;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #0f172a;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Charts */
+    .chart-container {
+      position: relative;
+      height: 400px;
+      margin-bottom: 2rem;
+    }
+
+    .chart-container.small {
+      height: 300px;
+    }
+
+    /* Insight Boxes */
+    .insight {
+      padding: 1rem;
+      border-radius: 0.375rem;
+      border-left: 4px solid;
+      background-color: #f9fafb;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      margin-top: 1.5rem;
+    }
+
+    .insight.good {
+      border-color: #10b981;
+      background-color: #f0fdf4;
+    }
+
+    .insight.warn {
+      border-color: #f59e0b;
+      background-color: #fffbeb;
+    }
+
+    .insight.bad {
+      border-color: #ef4444;
+      background-color: #fef2f2;
+    }
+
+    .insight.info {
+      border-color: #3b82f6;
+      background-color: #eff6ff;
+    }
+
+    /* Tables */
+    .table-wrapper {
+      overflow-x: auto;
+      margin-top: 1rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+
+    thead {
+      background: #f3f4f6;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    th {
+      padding: 0.75rem;
+      text-align: left;
+      font-weight: 600;
+      color: #374151;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+    }
+
+    td {
+      padding: 0.75rem;
+      border-bottom: 1px solid #e5e7eb;
+      color: #374151;
+    }
+
+    tbody tr:hover {
+      background: #fafafa;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 2rem;
+      color: #9ca3af;
+      font-size: 0.875rem;
+      border-top: 1px solid #e5e7eb;
+      margin-top: 3rem;
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      background: #e5e7eb;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .badge.primary {
+      background: #eff6ff;
+      color: #1e40af;
+    }
+
+    .badge.secondary {
+      background: #f0fdf4;
+      color: #166534;
+    }
+
+    .badge.warning {
+      background: #fffbeb;
+      color: #92400e;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+
+      header {
+        padding: 1rem;
+      }
+
+      header h1 {
+        font-size: 1.5rem;
+      }
+
+      .kpi-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .section {
+        padding: 1rem;
+      }
+
+      .chart-container {
+        height: 300px;
+      }
+
+      .tabs {
+        padding: 0;
+      }
+
+      .tab-button {
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Modo Energy Content Intelligence Dashboard</h1>
+    <p>Article engagement metrics, reader insights & content performance analysis</p>
+  </header>
+
+  <div class="container">
+    <!-- Tab Navigation -->
+    <div class="tabs">
+      <button class="tab-button active" data-tab="engagement">Article Engagement</button>
+      <button class="tab-button" data-tab="companies">Top Companies</button>
+      <button class="tab-button" data-tab="depth">Read Depth Analysis</button>
+    </div>
+
+    <!-- Tab 1: Article Engagement -->
+    <div id="engagement" class="tab-content active">
+      <!-- Region Selector -->
+      <div class="region-selector">
+        <button class="region-button active" data-region="EU">Europe</button>
+        <button class="region-button" data-region="US">United States</button>
+        <button class="region-button" data-region="AU">Australia</button>
+      </div>
+
+      <!-- KPI Cards -->
+      <div class="kpi-grid" id="kpiGrid">
+        <div class="kpi">
+          <div class="kpi-label">Total Views</div>
+          <div class="kpi-value" id="kpiViews">-</div>
+          <div class="kpi-change">across 9 days</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Total Reads</div>
+          <div class="kpi-value" id="kpiReads">-</div>
+          <div class="kpi-change" id="kpiReadsChange">-</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Avg Read Depth</div>
+          <div class="kpi-value" id="kpiDepth">-</div>
+          <div class="kpi-change">% completion rate</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Peak Day</div>
+          <div class="kpi-value" id="kpiPeakDay">-</div>
+          <div class="kpi-change" id="kpiPeakValue">-</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Unique Readers</div>
+          <div class="kpi-value" id="kpiReaders">-</div>
+          <div class="kpi-change">total period</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Reads/View Ratio</div>
+          <div class="kpi-value" id="kpiRatio">-</div>
+          <div class="kpi-change">engagement rate</div>
+        </div>
+      </div>
+
+      <!-- Views & Reads Chart -->
+      <div class="section">
+        <h3 class="section-title">Daily Article Views, Reads & Depth</h3>
+        <div class="chart-container">
+          <canvas id="engagementChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Read Depth Chart -->
+      <div class="section">
+        <h3 class="section-title">Average Read Depth by Day</h3>
+        <div class="chart-container small">
+          <canvas id="depthChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Top Articles Table -->
+      <div class="section">
+        <h3 class="section-title">Top Articles</h3>
+        <div class="table-wrapper">
+          <table id="articlesTable">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Views</th>
+                <th>Readers</th>
+                <th>Region</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 2: Top Companies -->
+    <div id="companies" class="tab-content">
+      <div class="section">
+        <h3 class="section-title">Top 20 Companies by Article Views</h3>
+        <div class="chart-container">
+          <canvas id="companiesChart"></canvas>
+        </div>
+
+        <div class="insight info">
+          <strong>Insight:</strong> Top readers are a mix of BESS developers (Zenobe, Field, Voltwise), utilities (EDF, SSE, Statkraft, Shell), investors (Gore Street, Nephila, JLL), and equipment/services companies (Gulermak, PwC). Revera Energy leads with 187 views across 66 articles.
+        </div>
+
+        <h3 class="section-title" style="margin-top: 2rem;">Company Engagement Details</h3>
+        <div class="table-wrapper">
+          <table id="companiesTable">
+            <thead>
+              <tr>
+                <th>Domain</th>
+                <th>Views</th>
+                <th>Users</th>
+                <th>Articles Read</th>
+                <th>Days Active</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 3: Read Depth Analysis -->
+    <div id="depth" class="tab-content">
+      <div class="kpi-grid">
+        <div class="kpi">
+          <div class="kpi-label">EU Completion Rate</div>
+          <div class="kpi-value" id="euCompletion">-</div>
+          <div class="kpi-change">reads reaching 90%+</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">US Completion Rate</div>
+          <div class="kpi-value" id="usCompletion">-</div>
+          <div class="kpi-change">reads reaching 90%+</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">AU Completion Rate</div>
+          <div class="kpi-value" id="auCompletion">-</div>
+          <div class="kpi-change">reads reaching 90%+</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3 class="section-title">Read Depth Distribution by Region</h3>
+        <div class="chart-container">
+          <canvas id="depthDistributionChart"></canvas>
+        </div>
+
+        <div class="insight good" style="margin-top: 1.5rem;">
+          <strong>Strong engagement:</strong> 67.8% of EU reads and 65.8% of US reads reach 90%+ completion, indicating high content absorption. EU leads with the highest number of engaged readers across all depth categories.
+        </div>
+
+        <div class="insight info" style="margin-top: 1rem;">
+          <strong>Regional comparison:</strong> EU shows the deepest engagement with 1,837 reads at 90%+ completion. US follows with 568, while AU shows consistent but smaller engagement volume. The absence of sub-50% reads suggests strong content relevance across all regions.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Data sources: FullStory (article engagement, 9-17 Mar 2026) + HubSpot (email dispatch performance) · Modo Energy
+  </footer>
+
+  <script>
+    // ============================================
+    // Data
+    // ============================================
+    const engagement = [
+      {day:'2026-03-09', eu_views:6, eu_reads:12, eu_readers:4, eu_depth:77.3, us_views:12, us_reads:29, us_readers:9, us_depth:81.9, au_views:41, au_reads:28, au_readers:11, au_depth:66.6},
+      {day:'2026-03-10', eu_views:914, eu_reads:650, eu_readers:215, eu_depth:72.2, us_views:286, us_reads:315, us_readers:82, us_depth:73.4, au_views:131, au_reads:89, au_readers:54, au_depth:75.9},
+      {day:'2026-03-11', eu_views:915, eu_reads:740, eu_readers:197, eu_depth:73.3, us_views:511, us_reads:536, us_readers:94, us_depth:70.1, au_views:133, au_reads:95, au_readers:42, au_depth:77.6},
+      {day:'2026-03-12', eu_views:1209, eu_reads:1237, eu_readers:254, eu_depth:78.4, us_views:373, us_reads:247, us_readers:112, us_depth:74.3, au_views:134, au_reads:108, au_readers:41, au_depth:73.6},
+      {day:'2026-03-13', eu_views:645, eu_reads:794, eu_readers:179, eu_depth:78.0, us_views:167, us_reads:192, us_readers:55, us_depth:76.4, au_views:217, au_reads:153, au_readers:96, au_depth:76.6},
+      {day:'2026-03-14', eu_views:62, eu_reads:101, eu_readers:17, eu_depth:75.7, us_views:26, us_reads:41, us_readers:14, us_depth:82.4, au_views:9, au_reads:10, au_readers:7, au_depth:80.7},
+      {day:'2026-03-15', eu_views:100, eu_reads:171, eu_readers:25, eu_depth:78.6, us_views:86, us_reads:73, us_readers:12, us_depth:76.9, au_views:42, au_reads:43, au_readers:19, au_depth:79.7},
+      {day:'2026-03-16', eu_views:643, eu_reads:693, eu_readers:179, eu_depth:76.3, us_views:300, us_reads:304, us_readers:96, us_depth:75.2, au_views:140, au_reads:94, au_readers:46, au_depth:78.0},
+      {day:'2026-03-17', eu_views:2199, eu_reads:1121, eu_readers:877, eu_depth:75.1, us_views:527, us_reads:239, us_readers:274, us_depth:75.4, au_views:176, au_reads:97, au_readers:76, au_depth:74.0},
+    ];
+
+    const topArticles = [
+      {title:'Hybrid BESS revenue structures: partial tolls, revenue floors and DA swaps', region:'EU', category:'Explainers', views:705, readers:279},
+      {title:'Capacity Market: 2029/30 T-4 auction clears at £27/kW/yr', region:'EU', category:'Research', views:495, readers:209},
+      {title:'German BESS investment outlook: Executive summary', region:'EU', category:'Market updates', views:494, readers:292},
+      {title:'European BESS financing report: 2025 in review', region:'EU', category:'Market updates', views:376, readers:169},
+      {title:'ERCOT Market Outlook Report - Q4 2025', region:'US', category:'Market Outlook', views:372, readers:168},
+      {title:'German BESS investment outlook: Bankable routes to market', region:'EU', category:'Financing', views:364, readers:146},
+      {title:'NEM battery adjusted capture rates — 13 March 2026', region:'AU', category:'Research', views:311, readers:130},
+      {title:'CAISO batteries earned $1.9/kW in February 2026', region:'US', category:'Revenue Benchmark', views:276, readers:113},
+      {title:'What higher European gas prices mean for BESS revenues', region:'EU', category:'Market updates', views:251, readers:112},
+      {title:'Residual demand shifting: why winter revenues were low in GB', region:'EU', category:'Research', views:168, readers:77},
+      {title:'MISO fast-tracks natural gas and BESS for data center demand', region:'US', category:'Market updates', views:160, readers:78},
+      {title:'ME BESS GB: Revenues fall to £41k/MW/year in Feb 2026', region:'EU', category:'Revenue Benchmark', views:168, readers:87},
+    ];
+
+    const topCompanies = [
+      {domain:'revera.energy', views:187, users:4, articles:66, days:8},
+      {domain:'zenobe.com', views:122, users:19, articles:28, days:6},
+      {domain:'nephilaclimate.com', views:112, users:9, articles:42, days:6},
+      {domain:'statkraft.com', views:104, users:14, articles:28, days:6},
+      {domain:'edf-re.uk', views:95, users:6, articles:22, days:7},
+      {domain:'pwc.com', views:92, users:2, articles:29, days:3},
+      {domain:'edfenergy.com', views:90, users:11, articles:27, days:6},
+      {domain:'field.energy', views:83, users:11, articles:22, days:7},
+      {domain:'varco.energy', views:81, users:7, articles:26, days:6},
+      {domain:'equinor.com', views:73, users:9, articles:26, days:6},
+      {domain:'tag-en.com', views:69, users:8, articles:22, days:6},
+      {domain:'jll.com', views:67, users:10, articles:20, days:5},
+      {domain:'masdar.ae', views:64, users:6, articles:21, days:7},
+      {domain:'alpiq.com', views:62, users:5, articles:17, days:5},
+      {domain:'shell.com', views:62, users:11, articles:25, days:6},
+      {domain:'gulermak.com', views:62, users:4, articles:18, days:5},
+      {domain:'balancepower.co.uk', views:61, users:2, articles:21, days:2},
+      {domain:'voltwisepower.com', views:60, users:6, articles:21, days:5},
+      {domain:'gorestreetcap.com', views:60, users:4, articles:22, days:6},
+      {domain:'sse.com', views:59, users:15, articles:24, days:6},
+    ];
+
+    const readDepth = {
+      EU: {'Under 50%': 1, '50-69%': 2783, '70-89%': 898, '90-100%': 1837},
+      US: {'Under 50%': 0, '50-69%': 904, '70-89%': 236, '90-100%': 568},
+      AU: {'Under 50%': 0, '50-69%': 342, '70-89%': 141, '90-100%': 234},
+    };
+
+    // ============================================
+    // State Management
+    // ============================================
+    let currentRegion = 'EU';
+    let charts = {};
+
+    // ============================================
+    // Tab Navigation
+    // ============================================
+    document.querySelectorAll('.tab-button').forEach(button => {
+      button.addEventListener('click', (e) => {
+        const tabName = e.target.dataset.tab;
+
+        // Update buttons
+        document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+
+        // Update content
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        document.getElementById(tabName).classList.add('active');
+
+        // Redraw charts when switching tabs
+        setTimeout(() => {
+          if (charts.engagementChart) charts.engagementChart.resize();
+          if (charts.depthChart) charts.depthChart.resize();
+          if (charts.companiesChart) charts.companiesChart.resize();
+          if (charts.depthDistributionChart) charts.depthDistributionChart.resize();
+        }, 100);
+      });
+    });
+
+    // ============================================
+    // Region Selector
+    // ============================================
+    document.querySelectorAll('.region-button').forEach(button => {
+      button.addEventListener('click', (e) => {
+        currentRegion = e.target.dataset.region;
+
+        document.querySelectorAll('.region-button').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+
+        updateEngagementTab();
+      });
+    });
+
+    // ============================================
+    // Utilities
+    // ============================================
+    function getRegionData(region) {
+      const views = [];
+      const reads = [];
+      const readers = [];
+      const depth = [];
+      const labels = [];
+
+      engagement.forEach(day => {
+        labels.push(day.day.substring(5));
+        views.push(day[`${region.toLowerCase()}_views`]);
+        reads.push(day[`${region.toLowerCase()}_reads`]);
+        readers.push(day[`${region.toLowerCase()}_readers`]);
+        depth.push(day[`${region.toLowerCase()}_depth`]);
+      });
+
+      return { views, reads, readers, depth, labels };
+    }
+
+    function formatNumber(num) {
+      return num.toLocaleString();
+    }
+
+    function calculateStats(region) {
+      const data = getRegionData(region);
+      const totalViews = data.views.reduce((a, b) => a + b, 0);
+      const totalReads = data.reads.reduce((a, b) => a + b, 0);
+      const avgDepth = (data.depth.reduce((a, b) => a + b, 0) / data.depth.length).toFixed(1);
+      const maxViewsIdx = data.views.indexOf(Math.max(...data.views));
+      const peakDay = data.labels[maxViewsIdx];
+      const totalReaders = data.readers.reduce((a, b) => a + b, 0);
+      const ratio = (totalReads / totalViews).toFixed(2);
+
+      return {
+        totalViews,
+        totalReads,
+        avgDepth,
+        peakDay,
+        totalReaders,
+        ratio
+      };
+    }
+
+    // ============================================
+    // Update Engagement Tab
+    // ============================================
+    function updateEngagementTab() {
+      const stats = calculateStats(currentRegion);
+      const data = getRegionData(currentRegion);
+
+      // Update KPIs
+      document.getElementById('kpiViews').textContent = formatNumber(stats.totalViews);
+      document.getElementById('kpiReads').textContent = formatNumber(stats.totalReads);
+      document.getElementById('kpiReadsChange').textContent = `${stats.ratio}x engagement rate`;
+      document.getElementById('kpiDepth').textContent = stats.avgDepth + '%';
+      document.getElementById('kpiPeakDay').textContent = stats.peakDay;
+      document.getElementById('kpiPeakValue').textContent = `${formatNumber(Math.max(...data.views))} views`;
+      document.getElementById('kpiReaders').textContent = formatNumber(stats.totalReaders);
+      document.getElementById('kpiRatio').textContent = stats.ratio;
+
+      // Update articles table
+      updateArticlesTable();
+
+      // Update charts
+      updateEngagementChart();
+      updateDepthChart();
+    }
+
+    // ============================================
+    // Charts
+    // ============================================
+    function updateEngagementChart() {
+      const ctx = document.getElementById('engagementChart').getContext('2d');
+      const data = getRegionData(currentRegion);
+
+      // Destroy existing chart if it exists
+      if (charts.engagementChart) charts.engagementChart.destroy();
+
+      charts.engagementChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: data.labels,
+          datasets: [
+            {
+              label: 'Views',
+              data: data.views,
+              backgroundColor: '#3b82f6',
+              borderColor: '#3b82f6',
+              borderWidth: 0,
+              borderRadius: 4,
+              yAxisID: 'y',
+            },
+            {
+              label: 'Reads',
+              data: data.reads,
+              backgroundColor: '#10b981',
+              borderColor: '#10b981',
+              borderWidth: 0,
+              borderRadius: 4,
+              yAxisID: 'y',
+            },
+            {
+              label: 'Unique Readers',
+              data: data.readers,
+              type: 'line',
+              borderColor: '#f59e0b',
+              backgroundColor: 'rgba(245, 158, 11, 0.1)',
+              borderWidth: 3,
+              pointRadius: 5,
+              pointBackgroundColor: '#f59e0b',
+              pointBorderColor: '#fff',
+              pointBorderWidth: 2,
+              tension: 0.3,
+              yAxisID: 'y1',
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            mode: 'index',
+            intersect: false,
+          },
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top',
+              labels: {
+                font: { size: 12, weight: 600 },
+                color: '#374151',
+                padding: 15,
+                usePointStyle: true,
+              }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              padding: 12,
+              titleFont: { size: 13, weight: 600 },
+              bodyFont: { size: 12 },
+              borderColor: 'rgba(255, 255, 255, 0.1)',
+              borderWidth: 1,
+              displayColors: true,
+            }
+          },
+          scales: {
+            y: {
+              type: 'linear',
+              display: true,
+              position: 'left',
+              title: {
+                display: true,
+                text: 'Views & Reads',
+                font: { weight: 600, size: 12 },
+                color: '#374151',
+              },
+              grid: {
+                color: '#f3f4f6',
+                drawBorder: false,
+              },
+              ticks: {
+                color: '#6b7280',
+                font: { size: 11 },
+              }
+            },
+            y1: {
+              type: 'linear',
+              display: true,
+              position: 'right',
+              title: {
+                display: true,
+                text: 'Unique Readers',
+                font: { weight: 600, size: 12 },
+                color: '#374151',
+              },
+              grid: {
+                drawOnChartArea: false,
+              },
+              ticks: {
+                color: '#6b7280',
+                font: { size: 11 },
+              }
+            },
+            x: {
+              grid: {
+                display: false,
+                drawBorder: false,
+              },
+              ticks: {
+                color: '#6b7280',
+                font: { size: 11 },
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function updateDepthChart() {
+      const ctx = document.getElementById('depthChart').getContext('2d');
+      const data = getRegionData(currentRegion);
+
+      if (charts.depthChart) charts.depthChart.destroy();
+
+      charts.depthChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: data.labels,
+          datasets: [{
+            label: 'Avg Read Depth',
+            data: data.depth,
+            borderColor: '#8b5cf6',
+            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            pointRadius: 5,
+            pointBackgroundColor: '#8b5cf6',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            tension: 0.3,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              labels: {
+                font: { size: 12, weight: 600 },
+                color: '#374151',
+                padding: 15,
+              }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              padding: 12,
+              titleFont: { size: 13, weight: 600 },
+              bodyFont: { size: 12 },
+              callbacks: {
+                label: function(context) {
+                  return context.parsed.y.toFixed(1) + '% completion';
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              min: 60,
+              max: 85,
+              title: {
+                display: true,
+                text: '% Read Depth',
+                font: { weight: 600, size: 12 },
+              },
+              grid: {
+                color: '#f3f4f6',
+                drawBorder: false,
+              },
+              ticks: {
+                color: '#6b7280',
+                font: { size: 11 },
+                callback: function(value) {
+                  return value + '%';
+                }
+              }
+            },
+            x: {
+              grid: {
+                display: false,
+                drawBorder: false,
+              },
+              ticks: {
+                color: '#6b7280',
+                font: { size: 11 },
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function createCompaniesChart() {
+      const ctx = document.getElementById('companiesChart').getContext('2d');
+      const sortedCompanies = [...topCompanies].sort((a, b) => b.views - a.views);
+
+      if (charts.companiesChart) charts.companiesChart.destroy();
+
+      charts.companiesChart = new Chart(ctx, {
+        type: 'barh',
+        data: {
+          labels: sortedCompanies.map(c => c.domain),
+          datasets: [{
+            label: 'Article Views',
+            data: sortedCompanies.map(c => c.views),
+            backgroundColor: '#0f172a',
+            borderRadius: 4,
+            borderSkipped: false,
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false,
+            },
+            tooltip: {
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              padding: 12,
+              titleFont: { size: 13, weight: 600 },
+              bodyFont: { size: 12 },
+              callbacks: {
+                afterLabel: function(context) {
+                  const idx = context.dataIndex;
+                  const company = sortedCompanies[idx];
+                  return `${company.users} users · ${company.articles} articles`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: {
+                color: '#f3f4f6',
+                drawBorder: false,
+              },
+              ticks: {
+                color: '#6b7280',
+                font: { size: 11 },
+              }
+            },
+            y: {
+              grid: {
+                display: false,
+                drawBorder: false,
+              },
+              ticks: {
+                color: '#6b7280',
+                font: { size: 11 },
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function createDepthDistributionChart() {
+      const ctx = document.getElementById('depthDistributionChart').getContext('2d');
+
+      if (charts.depthDistributionChart) charts.depthDistributionChart.destroy();
+
+      const categories = ['Under 50%', '50-69%', '70-89%', '90-100%'];
+      const colors = ['#ef4444', '#f59e0b', '#3b82f6', '#10b981'];
+
+      charts.depthDistributionChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: categories,
+          datasets: [
+            {
+              label: 'EU',
+              data: [
+                readDepth.EU['Under 50%'],
+                readDepth.EU['50-69%'],
+                readDepth.EU['70-89%'],
+                readDepth.EU['90-100%']
+              ],
+              backgroundColor: '#3b82f6',
+              borderRadius: 4,
+            },
+            {
+              label: 'US',
+              data: [
+                readDepth.US['Under 50%'],
+                readDepth.US['50-69%'],
+                readDepth.US['70-89%'],
+                readDepth.US['90-100%']
+              ],
+              backgroundColor: '#10b981',
+              borderRadius: 4,
+            },
+            {
+              label: 'AU',
+              data: [
+                readDepth.AU['Under 50%'],
+                readDepth.AU['50-69%'],
+                readDepth.AU['70-89%'],
+                readDepth.AU['90-100%']
+              ],
+              backgroundColor: '#f59e0b',
+              borderRadius: 4,
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top',
+              labels: {
+                font: { size: 12, weight: 600 },
+                color: '#374151',
+                padding: 15,
+              }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              padding: 12,
+              titleFont: { size: 13, weight: 600 },
+              bodyFont: { size: 12 },
+              callbacks: {
+                label: function(context) {
+                  return context.dataset.label + ': ' + formatNumber(context.parsed.y) + ' reads';
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              stacked: false,
+              grid: {
+                color: '#f3f4f6',
+                drawBorder: false,
+              },
+              ticks: {
+                color: '#6b7280',
+                font: { size: 11 },
+              }
+            },
+            y: {
+              stacked: false,
+              grid: {
+                color: '#f3f4f6',
+                drawBorder: false,
+              },
+              ticks: {
+                color: '#6b7280',
+                font: { size: 11 },
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // ============================================
+    // Tables
+    // ============================================
+    function updateArticlesTable() {
+      const tbody = document.querySelector('#articlesTable tbody');
+      tbody.innerHTML = '';
+
+      const regionArticles = topArticles.filter(a => a.region === currentRegion);
+
+      regionArticles.forEach(article => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td><strong>${article.title.substring(0, 50)}...</strong></td>
+          <td><span class="badge primary">${article.category}</span></td>
+          <td>${formatNumber(article.views)}</td>
+          <td>${formatNumber(article.readers)}</td>
+          <td><span class="badge secondary">${article.region}</span></td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function createCompaniesTable() {
+      const tbody = document.querySelector('#companiesTable tbody');
+      tbody.innerHTML = '';
+
+      topCompanies.forEach(company => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td><strong>${company.domain}</strong></td>
+          <td>${formatNumber(company.views)}</td>
+          <td>${formatNumber(company.users)}</td>
+          <td>${formatNumber(company.articles)}</td>
+          <td>${company.days}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    // ============================================
+    // Depth Analysis KPIs
+    // ============================================
+    function updateDepthKPIs() {
+      const calculate = (region) => {
+        const total = Object.values(readDepth[region]).reduce((a, b) => a + b, 0);
+        const completion = readDepth[region]['90-100%'];
+        return ((completion / total) * 100).toFixed(1);
+      };
+
+      document.getElementById('euCompletion').textContent = calculate('EU') + '%';
+      document.getElementById('usCompletion').textContent = calculate('US') + '%';
+      document.getElementById('auCompletion').textContent = calculate('AU') + '%';
+    }
+
+    // ============================================
+    // Initialization
+    // ============================================
+    function init() {
+      updateEngagementTab();
+      createCompaniesChart();
+      createCompaniesTable();
+      createDepthDistributionChart();
+      updateDepthKPIs();
+    }
+
+    // Run on page load
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  </script>
+</body>
+</html>
